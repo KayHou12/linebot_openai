@@ -3,10 +3,10 @@ from psycopg2 import sql
 
 # 建立資料庫連線
 conn = psycopg2.connect(
-    host="dpg-cmj1eaol5elc73ep9u0g-a.singapore-postgres.render.com",
-    user="stock_zs94_user",
-    password="R8YZugNEL8DbqkNAUmw7NLyezRKGyvT8",
-    database="stock_zs94"   
+    host="dpg-cmj44gocmk4c739n03bg-a.oregon-postgres.render.com",
+    user="db_4qcx_user db_4qcx",
+    password="diKiHADHIiXgWkRa8TrxA57mQt07Jx23",
+    database="db_4qcx"
 )
 
 # 建立一個 cursor 物件
