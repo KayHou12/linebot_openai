@@ -15,6 +15,9 @@ import time
 import traceback
 from stock_info import stock_id
 from weather import ask_weather
+from stock_notify import *
+from date import latestdate
+from watchlist import *
 #======python的函數庫、py檔==========
 
 app = Flask(__name__)
@@ -41,12 +44,11 @@ def callback():
     except InvalidSignatureError:
         abort(400)
     return 'OK'
-
 #訊息傳遞區塊
 ##### 基本上程式編輯都在這個function #####
 # re.match 的作用就是判斷文字是否一樣
-import re 
-@handler.add(MessageEvent, message=TextMessage) 
+import re
+@handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
     message = text = event.message.text
     if re.match("你是誰",message):
@@ -57,6 +59,12 @@ def handle_message(event):
     elif "天氣" in message:
         weather_feedback = ask_weather()
         line_bot_api.reply_message(event.reply_token,TextSendMessage(weather_feedback))
+    elif "關注清單" in message:
+        watch_list_data = watch_list()
+        line_bot_api.reply_message(event.reply_token,TextSendMessage(watch_list_data))
+    elif "最新日期" in message:
+        latest_date = latestdate()
+        line_bot_api.reply_message(event.reply_token,TextSendMessage(str(latest_date)))
     else:
         line_bot_api.reply_message(event.reply_token,TextSendMessage(message))
 
