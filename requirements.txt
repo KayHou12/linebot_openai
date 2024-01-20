@@ -1,4 +1,9 @@
 line-bot-sdk
 flask
-openai < 1.0.0
 gunicorn
+bs4
+numpy
+TA-lib
+pandas
+datetime
+psycopg2
