@@ -6,7 +6,7 @@ import pandas as pd
 def watch_list():
     conn = psycopg2.connect(
         host="dpg-cmj44gocmk4c739n03bg-a.oregon-postgres.render.com",
-        user="db_4qcx_user db_4qcx",
+        user="db_4qcx_user",
         password="diKiHADHIiXgWkRa8TrxA57mQt07Jx23",
         database="db_4qcx"
     )
