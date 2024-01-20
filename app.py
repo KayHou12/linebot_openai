@@ -1,5 +1,6 @@
-from flask import Flask, request, abort
+#建立linebot訊息功能
 
+from flask import Flask, request, abort
 from linebot import (
     LineBotApi, WebhookHandler
 )
@@ -8,7 +9,7 @@ from linebot.exceptions import (
 )
 from linebot.models import *
 
-#======python的函數庫、py檔==========
+#======載入程式碼==========
 import tempfile, os
 import datetime
 import time
@@ -18,17 +19,14 @@ from weather import ask_weather
 from stock_notify import *
 from date import latestdate
 from watchlist import *
-#======python的函數庫、py檔==========
 
+#======建立linebot==========
 app = Flask(__name__)
 static_tmp_path = os.path.join(os.path.dirname(__file__), 'static', 'tmp')
 # Channel Access Token
 line_bot_api = LineBotApi(os.getenv('CHANNEL_ACCESS_TOKEN'))
 # Channel Secret
 handler = WebhookHandler(os.getenv('CHANNEL_SECRET'))
-
-# line_bot_api.push_message(user_id, TextSendMessage(text='歡迎開始使用'))
-
 
 # 監聽所有來自 /callback 的 Post Request
 @app.route("/callback", methods=['POST'])
@@ -68,7 +66,7 @@ def handle_message(event):
     else:
         line_bot_api.reply_message(event.reply_token,TextSendMessage(message))
 
-#主程式 
+#環境
 import os
 if __name__ == "__main__":    
     port = int(os.environ.get('PORT', 5000))     

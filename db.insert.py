@@ -24,7 +24,6 @@ results = cursor.fetchall()
 for row in results:
     print(row)
 
-
 cursor.execute
 # 提交變更
 conn.commit()

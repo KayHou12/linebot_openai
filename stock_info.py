@@ -1,5 +1,4 @@
-# 個股資訊
-
+#從goodinfo拉個股資訊
 import requests
 from bs4 import BeautifulSoup
 

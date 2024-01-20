@@ -11,7 +11,6 @@ conn = psycopg2.connect(
 
 # 建立一個 cursor 物件
 cursor = conn.cursor()
-
 table_name = "stockdb"
 
 # 建立資料表

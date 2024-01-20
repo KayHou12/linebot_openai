@@ -4,6 +4,7 @@ import requests
 import pandas as pd
 import datetime
 
+#從finmind抓個股資訊
 
 today_date = datetime.date.today()
 previous_date = today_date - datetime.timedelta(days=1)
