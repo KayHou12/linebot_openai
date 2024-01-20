@@ -1,0 +1,92 @@
+import mysql.connector
+from mysql.connector import errorcode
+
+DB_NAME = "sales_data"
+
+TABLES = {}
+TABLES["orders"] = ("""
+    CREATE TABLE orders(
+        row_id INT,
+        order_id VARCHAR(20),
+        order_date DATE,
+        ship_date DATE,
+        ship_mode VARCHAR(20),
+        customer_id VARCHAR(15),
+        customer_name VARCHAR(30),
+        segment VARCHAR(20),
+        country VARCHAR(20),
+        city VARCHAR(20),
+        state VARCHAR(20),
+        postal_code INT,
+        region VARCHAR(20),
+        product_id VARCHAR(30),
+        category VARCHAR(30),
+        sub_category VARCHAR(20),
+        product_name VARCHAR(200),
+        sales FLOAT,
+        quantity INT,
+        discount FLOAT,
+        profit FLOAT,
+        PRIMARY KEY(row_id, order_id)
+        )
+    """)
+
+TABLES["returns"] = ("""
+    CREATE TABLE returns(
+        ruturned varchar(20),
+        order_id varchar(20)
+    )
+    """)
+
+TABLES["people"] = ("""
+    CREATE TABLE people(
+        person varchar(50),
+        region varchar(10)
+    )
+
+    """)
+
+cnx = mysql.connector.connect(
+    host = "localhost",
+    user = "root",
+    password = "12345"
+)
+
+cursor = cnx.cursor() # ()代表要執行該函數，否則只是定義變數 cursor
+
+def create_database(cursor):
+    try:
+        cursor.execute("CREATE DATABASE {}".format(DB_NAME))
+    except mysql.connector.Error as err:
+        print("Failed creating databases: {}".format(err))
+        exit(1)  # exit(1)會回報錯誤訊息並且中斷程式碼的運行
+
+try:
+    cursor.execute("USE {}".format(DB_NAME))
+except mysql.connector.Error as err:
+    print("Database {} does not exists.".format(DB_NAME))
+    # 以下 if 為如果錯誤訊息為資料庫不存在則....
+    if err.errno == errorcode.ER_BAD_DB_ERROR:
+        create_database(cursor)
+        print("Database {} created successsfully.".format(DB_NAME))
+        cnx.database = DB_NAME
+    else:
+        print(err)
+        exit(1)
+
+for table_name in TABLES:
+    table_description = TABLES[table_name]
+    try:
+        print("Creating table{}: ".format(table_name), end='')
+        cursor.execute(table_description)
+    except mysql.connector.Error as err:
+        # 以下 if 為如果錯誤訊息為資料表不存在則....
+        if err.errno == errorcode.ER_TABLE_EXISTS_ERROR:
+            print("already exists.")
+        else:
+            print(err.msg)
+    else:
+        print("SUCCESS")
+
+cursor.close()
+cnx.close()

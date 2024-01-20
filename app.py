@@ -8,13 +8,14 @@ from linebot.exceptions import (
 )
 from linebot.models import *
 
-#======python的函數庫==========
+#======python的函數庫、py檔==========
 import tempfile, os
 import datetime
-import openai
 import time
 import traceback
-#======python的函數庫==========
+from stock_info import stock_id
+from weather import ask_weather
+#======python的函數庫、py檔==========
 
 app = Flask(__name__)
 static_tmp_path = os.path.join(os.path.dirname(__file__), 'static', 'tmp')
@@ -22,17 +23,8 @@ static_tmp_path = os.path.join(os.path.dirname(__file__), 'static', 'tmp')
 line_bot_api = LineBotApi(os.getenv('CHANNEL_ACCESS_TOKEN'))
 # Channel Secret
 handler = WebhookHandler(os.getenv('CHANNEL_SECRET'))
-# OPENAI API Key初始化設定
-openai.api_key = os.getenv('OPENAI_API_KEY')
 
-
-def GPT_response(text):
-    # 接收回應
-    response = openai.Completion.create(model="text-davinci-003", prompt=text, temperature=0.5, max_tokens=500)
-    print(response)
-    # 重組回應
-    answer = response['choices'][0]['text'].replace('。','')
-    return answer
+# line_bot_api.push_message(user_id, TextSendMessage(text='歡迎開始使用'))
 
 
 # 監聽所有來自 /callback 的 Post Request
@@ -50,36 +42,27 @@ def callback():
         abort(400)
     return 'OK'
 
-
-# 處理訊息
-@handler.add(MessageEvent, message=TextMessage)
+#訊息傳遞區塊
+##### 基本上程式編輯都在這個function #####
+# re.match 的作用就是判斷文字是否一樣
+import re 
+@handler.add(MessageEvent, message=TextMessage) 
 def handle_message(event):
-    msg = event.message.text
-    try:
-        GPT_answer = GPT_response(msg)
-        print(GPT_answer)
-        line_bot_api.reply_message(event.reply_token, TextSendMessage(GPT_answer))
-    except:
-        print(traceback.format_exc())
-        line_bot_api.reply_message(event.reply_token, TextSendMessage('你所使用的OPENAI API key額度可能已經超過，請於後台Log內確認錯誤訊息'))
-        
+    message = text = event.message.text
+    if re.match("你是誰",message):
+        line_bot_api.reply_message(event.reply_token,TextSendMessage("才不告訴你勒~~"))
+    elif "個股資訊" in message:
+        stock_n = stock_id(message[5:])
+        line_bot_api.reply_message(event.reply_token,[TextSendMessage(stock_n)])
+    elif "天氣" in message:
+        weather_feedback = ask_weather()
+        line_bot_api.reply_message(event.reply_token,TextSendMessage(weather_feedback))
+    else:
+        line_bot_api.reply_message(event.reply_token,TextSendMessage(message))
 
-@handler.add(PostbackEvent)
-def handle_message(event):
-    print(event.postback.data)
-
-
-@handler.add(MemberJoinedEvent)
-def welcome(event):
-    uid = event.joined.members[0].user_id
-    gid = event.source.group_id
-    profile = line_bot_api.get_group_member_profile(gid, uid)
-    name = profile.display_name
-    message = TextSendMessage(text=f'{name}歡迎加入')
-    line_bot_api.reply_message(event.reply_token, message)
-        
-        
+#主程式 
 import os
-if __name__ == "__main__":
-    port = int(os.environ.get('PORT', 5000))
-    app.run(host='0.0.0.0', port=port)
+if __name__ == "__main__":    
+    port = int(os.environ.get('PORT', 5000))     
+    app.run(host='0.0.0.0', port=port) 
+    

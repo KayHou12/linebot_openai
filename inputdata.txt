@@ -1,0 +1,68 @@
+import pandas as pd
+import mysql.connector
+from mysql.connector import Error
+
+
+cursor = None
+
+# 連接 MariaDB
+try:
+    cnx = mysql.connector.connect(
+    host = "localhost",
+    user = "root",
+    password = "12345",
+    database = "sales_data"
+    )
+
+    if cnx.is_connected():
+        print("Connected to MariaDB")
+
+        # 讀取 Excel 檔案
+        excel_file = r'C:\Users\Victor\Desktop\sideProject\sales_data.xlsx'
+        sheet1_name = 'Orders'
+        sheet2_name = 'Returns'
+        sheet3_name = 'People'
+        orders = pd.read_excel(excel_file, sheet1_name)
+        returns = pd.read_excel(excel_file, sheet2_name)
+        people = pd.read_excel(excel_file, sheet3_name)
+
+        # 將 DataFrame 中的資料寫入 MariaDB
+        cursor = cnx.cursor()
+
+        # 將日期轉為字符以避免寫入時發生錯誤
+        orders['Order Date'] = orders['Order Date'].astype(str)
+        orders['Ship Date'] = orders['Ship Date'].astype(str)
+
+        add_orders = ("""
+                      INSERT INTO orders
+                      VALUES(%s, %s ,%s ,%s ,%s ,%s ,%s ,%s ,%s ,%s ,%s ,%s ,%s ,%s ,%s ,%s ,%s ,%s ,%s ,%s, %s)
+                      """)
+        add_returns = ("""
+                      INSERT INTO returns
+                      VALUES(%s, %s)
+                      """)
+        add_people = ("""
+                      INSERT INTO people
+                      VALUES(%s, %s)
+                      """)
+        data_orders = orders
+        for row in orders.itertuples(index=False, name=None):
+            cursor.execute(add_orders, row)
+            cnx.commit()
+        for row in returns.itertuples(index=False, name=None):
+            cursor.execute(add_returns, row)
+            cnx.commit()
+        for row in people.itertuples(index=False, name=None):
+            cursor.execute(add_people, row)
+            cnx.commit()
+
+except Error as e:
+    print("Error:", e)
+
+finally:
+    # 關閉連接
+    if cursor is not None:
+        cursor.close()
+    if cnx.is_connected():
+        cnx.close()
+        print("Connection closed")
