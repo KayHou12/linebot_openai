@@ -6,4 +6,4 @@ numpy
 TA-lib
 pandas
 datetime
-psycop３g2
+psycopg2
